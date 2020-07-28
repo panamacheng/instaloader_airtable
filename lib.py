@@ -51,7 +51,14 @@ def read_file(dir_name, file_name):
             header_columns = ['_Hash_Tag','_media_id','_short_url','_date','_date(GMT)','_caption', \
                             '_comments_count','_likes_count','_video_views','_video_url','_thumbnail_url', \
                             '_image_url','_location_id','_location_name','_location_url','_lat','_lng' \
-                            '_user_id','_username','_full_name','_profile_pic_url','_profile_url','_Num_of_Followers','_Num_of_Posts','_Num_Following','_Profile_Text']
+                            '_user_id','_username','_full_name','_profile_pic_url','_profile_url', \
+                            '_Num_of_Followers','_Num_of_Posts','_Num_Following','_Profile_Text']
+                            
+        if file_name == 'Profile_Unique_Likes_n_Comments.csv':
+            header_columns = ['_Profile_Handle','_user_id','_username','_full_name','_is_private', \
+                            '_is_verified','_Date_of_Last_Like_or_Comment','_Total_Comments_N_Likes', \
+                            '_Total_Comments',' _Total_Likes','_profile_pic_url','_profile_url', \
+                            '_Num_of_Followers','_Num_of_Posts','_Num_Following','_Profile_Text']
 
         df = pd.DataFrame(columns=header_columns)
         df.to_csv(dir_name + '/' + file_name, index = False, header=True)

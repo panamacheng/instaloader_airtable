@@ -6,6 +6,56 @@ from lib import read_file, write_file
 IL = Instaloader()
 p_counts = 20    # counts of post
 
+# save unique comments by user.
+def save_unique_comments_by_user(pfn): 
+    file_data = read_file('csvs', 'Profile_Unique_Likes_n_Comments.csv')
+    if file_data[0] :
+        print('Successfully opened the Profile_Unique_Likes_n_Comments.csv file')
+    else :
+        print('Created Profile_Unique_Likes_n_Comments.csv file')
+    profile = Profile.from_username(IL.context, pfn)
+    posts = profile.get_posts()
+    for post in posts:
+        comments = post.get_comments()
+        for comment in comments: 
+            new_row = {
+                '_Profile_Handle': pfn,
+                '_user_id': comment.owner.userid,
+                '_username': comment.owner.username,
+                '_full_name': comment.owner.full_name,
+                '_is_private': comment.owner.is_private,
+                '_is_verified': comment.owner.is_verified,
+                '_Date_of_Last_Like_or_Comment': '',
+                '_Total_Comments_N_Likes': comment.likes_count, 
+                '_Total_Comments': '',
+                ' _Total_Likes': comment.likes_count,
+                '_profile_pic_url': comment.owner.profile_pic_url,
+                '_profile_url': comment.owner.external_url,
+                '_Num_of_Followers': comment.owner.followers,
+                '_Num_of_Posts': comment.owner.mediacount,
+                '_Num_Following': comment.owner.followees,
+                '_Profile_Text': comment.owner.biography
+            }
+
+            write_file('csvs', 'Profile_Unique_Likes_n_Comments.csv', new_row)
+
+def save_new_top_posts_by_profile(pfn): # pfn: profile name
+    profile = Profile.from_username(IL.context, pfn)
+    posts_sorted_by_time = sorted(profile.get_posts(), key=lambda p: p.date_utc, reverse=True)
+    save_post_data_to_csv_by_profile('csvs', '_Profile_Posts_Export.csv', posts_sorted_by_time)
+
+def save_new_bottom_posts_by_profile(pfn): # pfn: profile name
+    profile = Profile.from_username(IL.context, pfn)
+    posts_sorted_by_time = sorted(profile.get_posts(), key=lambda p: p.date_utc, reverse=False)
+    save_post_data_to_csv_by_profile('csvs', '_Profile_Posts_Export.csv', posts_sorted_by_time)
+    
+
+# get profile posts duration
+def save_new_middle_posts_by_profile(pfn): # pfn: profile name
+    profile = Profile.from_username(IL.context, pfn)
+    posts_sorted_by_likes = sorted(profile.get_posts(), key=lambda p: p.likes + p.comments, reverse=True)
+    save_post_data_to_csv_by_profile('csvs', '_Profile_Posts_Export.csv', posts_sorted_by_likes)
+
 # save post data to csv
 def save_post_data_to_csv_by_profile(dir_name, file_name, posts):
     file_data = read_file(dir_name, file_name)
@@ -41,26 +91,6 @@ def save_post_data_to_csv_by_profile(dir_name, file_name, posts):
         }
 
         write_file(dir_name, file_name, new_row)
-        # print(post.owner_username, post.mediaid, post.shortcode, post.date_local, post.date_utc, post.caption, \
-        #     post.comments, post.likes, post.video_view_count, post.video_url, post.url, post.location)
-
-def save_new_top_posts_by_profile(pfn): # pfn: profile name
-    profile = Profile.from_username(IL.context, pfn)
-    posts_sorted_by_time = sorted(profile.get_posts(), key=lambda p: p.date_utc, reverse=True)
-    save_post_data_to_csv_by_profile('csvs', '_Profile_Posts_Export.csv', posts_sorted_by_time)
-
-def save_new_bottom_posts_by_profile(pfn): # pfn: profile name
-    profile = Profile.from_username(IL.context, pfn)
-    posts_sorted_by_time = sorted(profile.get_posts(), key=lambda p: p.date_utc, reverse=False)
-    save_post_data_to_csv_by_profile('csvs', '_Profile_Posts_Export.csv', posts_sorted_by_time)
-    
-
-# get profile posts duration
-def save_new_middle_posts_by_profile(pfn): # pfn: profile name
-    profile = Profile.from_username(IL.context, pfn)
-    posts_sorted_by_likes = sorted(profile.get_posts(), key=lambda p: p.likes + p.comments, reverse=True)
-    save_post_data_to_csv_by_profile('csvs', '_Profile_Posts_Export.csv', posts_sorted_by_likes)
-
 
 def save_new_posts_by_hashtag(hashtag): 
     hashtag = hashtag.replace("#", "")
@@ -99,7 +129,7 @@ def save_new_posts_by_hashtag(hashtag):
             '_username': post.owner_username, 
             '_full_name': post.owner_profile.full_name,
             '_profile_pic_url': post.owner_profile.profile_pic_url,
-            '_profile_url': 'https://instagram.com/' + post.owner_profile.username,
+            '_profile_url': post.owner_profile.external_url,
             '_Num_of_Followers': post.owner_profile.followers,
             '_Num_of_Posts': post.owner_profile.mediacount,
             '_Num_Following': post.owner_profile.followees,
