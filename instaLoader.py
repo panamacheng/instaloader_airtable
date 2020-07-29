@@ -2,9 +2,9 @@ from itertools import islice
 from math import ceil
 from instaloader import Instaloader, Profile, Hashtag
 from lib import read_file, write_file
+from config import *
 
 IL = Instaloader()
-p_counts = 20    # counts of post
 
 # save unique comments by user.
 def save_unique_comments_by_user(pfn): 
@@ -13,9 +13,11 @@ def save_unique_comments_by_user(pfn):
         print('Successfully opened the Profile_Unique_Likes_n_Comments.csv file')
     else :
         print('Created Profile_Unique_Likes_n_Comments.csv file')
+
     profile = Profile.from_username(IL.context, pfn)
-    posts = profile.get_posts()
-    for post in posts:
+    posts_sorted_by_time = sorted(profile.get_posts(), key=lambda p: p.date_utc, reverse=True)
+
+    for post in islice(posts_sorted_by_time, ceil(p_counts)):
         comments = post.get_comments()
         for comment in comments: 
             new_row = {
@@ -95,13 +97,16 @@ def save_post_data_to_csv_by_profile(dir_name, file_name, posts):
 def save_new_posts_by_hashtag(hashtag): 
     hashtag = hashtag.replace("#", "")
     posts = Hashtag.from_name(IL.context, hashtag).get_posts()
+    posts_sorted_by_time = sorted(posts, key=lambda p: p.date_utc, reverse=True)
+
     file_data = read_file('csvs', 'Hash_Tag_Export.csv')
+
     if file_data[0] :
         print('Successfully opened the Hash_Tag_Export.csv file')
     else :
         print('Created Hash_Tag_Export.csv file')
 
-    for post in posts:
+    for post in islice(posts_sorted_by_time, ceil(p_counts)):
         new_row = { 
             '_Hash_Tag': hashtag, 
             '_media_id': post.mediaid, 
