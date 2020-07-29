@@ -2,7 +2,7 @@ from itertools import islice
 from math import ceil
 from instaloader import Instaloader, Profile, Hashtag
 from lib import read_file, write_file
-from config import *
+from config import p_counts
 
 IL = Instaloader()
 
