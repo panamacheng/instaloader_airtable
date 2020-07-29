@@ -16,6 +16,7 @@ def get_all_hashtags():
     airtable = Airtable(base_key, hashtag_table_name, api_key=os.environ['AIRTABLE_KEY'])
     all_hashtags = airtable.get_all(fields=['_Hash_Tag'])
     base_array = []
-    for url in all_hashtags:
-        base_array.append(url['fields']['_Hash_Tag'])
+    for hashtag in all_hashtags:
+        if len(hashtag['fields']) > 0:
+            base_array.append(hashtag['fields']['_Hash_Tag'])
     return base_array
